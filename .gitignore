@@ -10,3 +10,19 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# workspace
+.metadata
+.mylyn
+.plugins
+.log
+.lock
+version.ini
+RemoteSystemsTempFiles
+
+# project
+.project
+.settings
+.classpath
+target
+dependency-reduced-pom.xml
