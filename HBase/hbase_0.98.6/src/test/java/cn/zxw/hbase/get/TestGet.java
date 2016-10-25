@@ -17,18 +17,25 @@ public class TestGet {
 	}
     
 	public static void main(String[] args) {
-		String tableName = "user_applist";
+		String tableName = "dmp_asdk";
 		String columnFamily = "app";
-		String qualifier = "applist";
-		String rowKey="user1001";
+		String qualifier = "appboot";
+		String cf_info = "info";
+		String col_tags = "tags";
+		String rowKey="000099efa8553f9385f90b4cc30a8c64";
 		try {
 			HTable table = new HTable(configuration, tableName);
 			Get get=new Get(Bytes.toBytes(rowKey));
+			//get.addColumn(Bytes.toBytes(columnFamily), Bytes.toBytes(qualifier));
 			Result result=table.get(get);
-			System.out.println(result == null);
-			byte[] b = result.getValue(Bytes.toBytes(columnFamily), Bytes.toBytes(qualifier));
-			String res=new String(b);
-			System.out.println(res);
+			byte[] appboot = result.getValue(Bytes.toBytes(columnFamily), Bytes.toBytes(qualifier));
+			if(appboot != null){
+				System.out.println(new String(appboot));
+			}
+			byte[] tags = result.getValue(Bytes.toBytes(cf_info), Bytes.toBytes(col_tags));
+			if(tags != null){
+				System.out.println(new String(tags));
+			}
 			table.close();
 		} catch (Exception e) {
 			e.printStackTrace();

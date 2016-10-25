@@ -13,9 +13,7 @@ import org.apache.hadoop.hbase.client.Put;
 
 /**
  * 建立HBase表
- * 
  * @author hadoop
- *
  */
 public class TestTable {
 
