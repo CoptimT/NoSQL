@@ -25,6 +25,7 @@ public class ScanOpera extends MyTestCase{
 	public void scan(String tableName, String startRow, String stopRow, String family, String qualifier) throws IOException {
 		HTable table = HBaseConnectUtil.getTable(tableName);
 		Scan scan = new Scan();
+		scan.setCaching(100);
 		scan.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier));
 		//scan.setRowPrefixFilter(Bytes.toBytes(ROW_KEY));
 		scan.setStartRow(Bytes.toBytes(startRow)); // start key is inclusive
