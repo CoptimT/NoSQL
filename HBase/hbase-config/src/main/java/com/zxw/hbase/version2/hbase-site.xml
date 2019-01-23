@@ -1,0 +1,191 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<configuration>
+	<!-- 必备配置 -->
+    <property> 
+    	<!-- 持久化HBase数据的目录，一般是hdfs的文件目录 -->
+　　　　<name>hbase.rootdir</name> 
+　　　　<value>hdfs://IOT-TEST-01:9000/hbase</value>
+　　</property>
+　　<property> 
+　　　　<name>hbase.zookeeper.quorum</name> 
+　　　　<value>IOT-TEST-01,IOT-TEST-02,IOT-TEST-03</value> 
+　　</property>
+	<property>
+		<!-- 集群模式分布式/单机，false表示HBase进程和ZooKeeper进程在同一个JVM进程 -->
+　　　　<name>hbase.cluster.distributed</name> 
+　　　　<value>true</value> 
+　　</property>
+    <property>
+        <name>hbase.unsafe.stream.capability.enforce</name>
+        <value>false</value>
+        <description>
+          Controls whether HBase will check for stream capabilities (hflush/hsync).
+
+          Disable this if you intend to run on LocalFileSystem, denoted by a rootdir
+          with the 'file://' scheme, but be mindful of the NOTE below.
+
+          WARNING: Setting this to false blinds you to potential data loss and
+          inconsistent system state in the event of process and/or node failures. If
+          HBase is complaining of an inability to use hsync or hflush it's most
+          likely not a false positive.
+        </description>
+    </property>
+
+	<property>
+	   	<name>hbase.client.ipc.pool.type</name>
+   		<value>RoundRobinPool</value>
+	</property>
+	<property>
+   		<name>hbase.client.ipc.pool.size</name>
+   		<value>100</value>
+	</property>
+
+	<property> 
+		<name>hbase.hregion.majorcompaction</name> 
+  		<value>0</value>
+  		<!-- 大合并之间的时间，以毫秒表示。 设置为0可禁用基于时间的自动大合并。 用户请求的和基于文件大小的大合并仍将运行。 
+  		此值乘以hbase.hregion.majorcompaction.jitter，以使压缩在给定的时间窗口内以稍微随机的时间开始。 默认值为7天，以毫
+  		秒为单位。 如果大合并导致环境中断，您可以将它们配置为在部署的非高峰时间运行，或者通过将此参数设置为0来禁用基于时
+  		间的大合并，并在cron作业或其他外部机制作业中运行大合并。 -->
+	</property>
+
+	<property> 
+    	<!-- 该参为CPU的倍数，默认值为30，该参数根据是否出现Call队列过大而调整-->
+    	<!-- RegionServer处理IO请求的线程数 -->
+    	<name>hbase.regionserver.handler.count</name> 
+    	<value>300</value>
+	</property>
+
+	<property>
+	  	<name>hbase.rpc.timeout</name>
+	 	<value>120000</value>
+	</property>
+	<property>
+  		<name>hbase.client.scanner.timeout.period</name>
+  		<value>120000</value>
+	</property>
+	
+	<!-- 写多读少,增大Memstore与BlockCache的比例 -->
+	<property>
+		<name>hbase.regionserver.global.memstore.size</name>
+    	<value>0.6</value>
+	</property>
+	<property> 
+   	 	<name>hbase.hregion.memstore.block.multiplier</name> 
+    	<value>4</value>
+	</property>
+	<property> 
+    	<name>hbase.hstore.blockingStoreFiles</name> 
+    	<value>10</value>
+        <description>If more than this number of StoreFiles exist in any one Store, updates are blocked for this region until a compaction is completed, or until hbase.hstore.blockingWaitTime has been exceeded.</description>
+	</property>
+    <property>
+         <name>hbase.hstore.blockingWaitTime</name>
+         <value>90000</value>
+         <description>After this time has elapsed, the region will stop blocking updates even if a compaction has not been completed.</description>
+    </property>
+	
+	<!-- 默认false，设置true，hbase使用自己的数据校验，而不是hdfs的校验；让HBase把校验和写到数据库中，并保存每次读取时都要进行校验和查找。-->
+	<property> 
+    	<name>hbase.regionserver.checksum.verify</name> 
+    	<value>true</value>
+	</property>
+
+	<!-- 调整读写队列参数:读写分离 -->
+	<property> 
+    	<name>hbase.ipc.server.num.callqueue</name> 
+	    <value>60</value>
+	</property>
+	<property> 
+	    <name>hbase.ipc.server.callqueue.read.ratio</name> 
+    	<value>.4</value>
+        <description>uses 30% of the queues for reading and 60% for writing</description>
+	</property>
+	<property>
+		<name>hbase.ipc.server.callqueue.scan.ratio</name>
+		<value>.8</value>
+        <property>uses 20% of the read queues for Gets and 80% for Scans</property>
+	</property>
+	<!--
+  	<property>
+    	<name>hbase.bucketcache.ioengine</name>
+    	<value>offheap</value>
+  	</property>
+	-->
+  	<property>
+    	<name>hfile.block.cache.size</name>
+    	<value>0.2</value>
+    	<description>Percentage of maximum heap (-Xmx setting) to allocate to block cache used by a StoreFile</description>
+  	</property>
+	<!--
+  	<property>
+    	<name>hbase.bucketcache.size</name>
+    	<value>6144</value>
+		<description>A float that EITHER represents a percentage of total heap memory size to give to the cache (if little than 1.0) OR, it is the total capacity in megabytes of BucketCache. Default: 0.0</description>
+  	</property>
+	-->
+ 	<property>
+     	<name>hbase.hstore.flusher.count</name>
+     	<value>10</value>
+   	</property>
+  	<property>
+      	<name>hbase.regionserver.thread.compaction.small</name>
+      	<value>10</value>
+  	</property>
+	<property> 
+	    <name>hbase.regionserver.thread.compaction.large</name> 
+    	<value>5</value>
+	</property>
+  	<!--
+  	<property>
+      	<name>hbase.ipc.server.reservoir.initial.max</name>
+      	<value>40000</value>
+  	</property>
+  	-->
+	<property>
+    	 <name>zookeeper.session.timeout</name>
+     	<value>120000</value>
+	</property>
+	
+	<!-- MemStore相关配置 -->
+    <property>
+    	<!-- RegionServer进程block进行flush触发条件：该节点上所有region的memstore之和达到upperLimit*heapsize -->
+        <name>hbase.regionserver.global.memstore.size</name>
+        <value>0.4</value>
+    </property>
+    <property>
+        <!-- 控制内存整体的使用情况，当所有memstore占整个heap的最大比例的时候，会触发刷盘的操作.默认为整个heap内存的40% -->
+        <name>hbase.regionserver.global.memstore.size.lower.limit</name>
+        <value></value>
+    <description>。Maximum size of all memstores in a region server before flushes
+      are forced. Defaults to 95% of hbase.regionserver.global.memstore.size
+      (0.95). A 100% value for this value causes the minimum possible flushing
+      to occur when updates are blocked due to memstore limiting. The default
+      value in this configuration has been intentionally left empty in order to
+      honor the old hbase.regionserver.global.memstore.lowerLimit property if
+      present.
+    </description>
+  </property>
+    <property>
+        <!-- 当MemStore大小达到该值的时候会触发刷盘，默认128M大小 -->
+        <name>hbase.hregion.memstore.flush.size</name>
+        <value>134217728</value>
+    </property>
+    <property>
+	    <name>hbase.hregion.memstore.mslab.enabled</name>
+	    <value>true</value>
+	    <description>
+	      Enables the MemStore-Local Allocation Buffer,
+	      a feature which works to prevent heap fragmentation under
+	      heavy write loads. This can reduce the frequency of stop-the-world
+	      GC pauses on large heaps.</description>
+    </property>
+    <property>
+        <name>hbase.hregion.max.filesize</name>
+        <value>10737418240</value><!-- 10G -->
+        <description>
+        Maximum HFile size. If the sum of the sizes of a region's HFiles has grown to exceed this
+        value, the region is split in two.
+        </description>
+    </property>
+</configuration>
