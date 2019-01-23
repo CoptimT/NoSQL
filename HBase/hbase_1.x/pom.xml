@@ -35,7 +35,6 @@
 		<artifactId>hbase-client</artifactId>
 		<version>1.2.6</version>
 	</dependency>
-
   </dependencies>
   <build> 
     <plugins> 
@@ -49,5 +48,5 @@
             </configuration> 
         </plugin> 
     </plugins> 
-</build> 
+  </build> 
 </project>
