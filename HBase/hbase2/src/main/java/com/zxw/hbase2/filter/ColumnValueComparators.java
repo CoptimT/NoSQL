@@ -3,7 +3,6 @@ package com.zxw.hbase2.filter;
 import java.io.IOException;
 
 import org.apache.hadoop.hbase.CompareOperator;
-import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryComparator;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.ByteArrayComparable;
@@ -35,16 +34,11 @@ public class ColumnValueComparators {
 	}
 	
 	public static void testColumnValueComparators(String columnQualifier,ByteArrayComparable comp) throws IOException {
-		PrepareData.init();
-		
 		byte[] cf = Bytes.toBytes(PrepareData.CF_DEFAULT);
 		byte[] column = Bytes.toBytes(columnQualifier);
 		
 		SingleColumnValueFilter filter = new SingleColumnValueFilter(cf,column,CompareOperator.EQUAL,comp);
-		Scan scan = new Scan();
-		scan.setFilter(filter);
 		
-		PrepareData.scan(scan);
-		PrepareData.close();
+		PrepareData.scanWithFilter(filter);
 	}
 }

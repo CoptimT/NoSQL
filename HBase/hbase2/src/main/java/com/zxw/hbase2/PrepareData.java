@@ -7,6 +7,7 @@ import java.util.NavigableMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
@@ -15,18 +16,20 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Admin;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.FilterBase;
 import org.apache.hadoop.hbase.io.compress.Compression.Algorithm;
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**
  * It is a new API introduced in HBase 2.0 which aims to provide the ability to access HBase asynchronously.
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings("all")
 public class PrepareData {
 
 	public static final String TABLE_NAME = "test";
@@ -53,7 +56,34 @@ public class PrepareData {
 		}
 	}
 	
-	public static void init() throws IOException {
+	public static void scanWithFilter(FilterBase filter) throws IOException{
+		try {
+			init();
+			
+			Scan scan = new Scan();
+			scan.setFilter(filter);
+			
+			scan(scan);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			close();
+		}
+	}
+	
+	public static void get(Get get) throws IOException{
+		try {
+			init();
+			Result r = table.get(get); 
+			printResult2(r);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}finally {
+			close();
+		}
+	}
+	
+	private static void init() throws IOException {
 		Configuration config = HBaseConfiguration.create();
 		config.set("hbase.zookeeper.quorum", "172.17.171.15");
 		conn = ConnectionFactory.createConnection(config);
@@ -62,13 +92,13 @@ public class PrepareData {
 		System.out.println("初始化完成!");
 	}
 
-	public static void deleteTable(Admin admin, String tableName) throws IOException {
+	private static void deleteTable(Admin admin, String tableName) throws IOException {
 		admin.disableTable(TableName.valueOf(tableName));
 		admin.deleteTable(TableName.valueOf(tableName));
 		System.out.println("删除表成功！");
 	}
   
-	public static void createTable(Admin admin, String tableName, String... cfs) throws IOException {
+	private static void createTable(Admin admin, String tableName, String... cfs) throws IOException {
 		if (admin.tableExists(TableName.valueOf(tableName))) {
 			System.out.println("表已存在");
 		} else {
@@ -84,7 +114,7 @@ public class PrepareData {
 		}
 	}
 	
-	public static void writeRow(Table table, String rowKey,String cf,Map<String,String> values) throws IOException {
+	private static void writeRow(Table table, String rowKey,String cf,Map<String,String> values) throws IOException {
 		Put put = new Put(Bytes.toBytes(rowKey));
 		for(String key:values.keySet()){
 			put.addColumn(Bytes.toBytes(cf), Bytes.toBytes(key), Bytes.toBytes(values.get(key)));
@@ -93,7 +123,7 @@ public class PrepareData {
 		System.out.println("插入数据成功！");
 	}
 	
-	public static void scan(Scan scan) throws IOException {
+	private static void scan(Scan scan) throws IOException {
 		ResultScanner rs = table.getScanner(scan);
 		try {
 			for (Result r = rs.next(); r != null; r = rs.next()) {
@@ -104,7 +134,7 @@ public class PrepareData {
 		}
 	}
 	
-	public static void scan(Table table, String family) throws IOException {
+	private static void scan(Table table, String family) throws IOException {
 		Scan scan = new Scan();
 		scan.addFamily(Bytes.toBytes(family));
 		//scan.setBatch(5);//查询结果每个Result最多包含列数，如果实际列数多于该值，则返回多个Result
@@ -112,14 +142,13 @@ public class PrepareData {
 		try {
 			for (Result r = rs.next(); r != null; r = rs.next()) {
 				printResult(r);
-				System.out.println("----------");
 			}
 		} finally {
 			rs.close();// always close the ResultScanner!
 		}
 	}
 	
-	public static void scan(Table table, String startRow, String stopRow, String family, String qualifier) throws IOException {
+	private static void scan(Table table, String startRow, String stopRow, String family, String qualifier) throws IOException {
 		Scan scan = new Scan();
 		scan.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier));
 		//scan.setRowPrefixFilter(Bytes.toBytes(ROW_KEY));
@@ -130,7 +159,6 @@ public class PrepareData {
 		  for (Result r = rs.next(); r != null; r = rs.next()) {
 			  //System.out.println(r.getValue(Bytes.toBytes(family), Bytes.toBytes(qualifier)));
 			  printResult(r);
-			  System.out.println("----------");
 		  }
 		} finally {
 		  rs.close();//always close the ResultScanner!
@@ -154,13 +182,15 @@ public class PrepareData {
 	}
 	
 	public static void printResult2(Result r) {
+		System.out.print("ResultSize="+r.size()+" ");
+		System.out.print(Bytes.toString(r.getRow())+": ");
 		for (Cell cell : r.rawCells()) {
-			System.out.print(new String(cell.getRowArray())+":"+new String(cell.getQualifierArray())+"="+new String(cell.getValueArray())+",");
+			System.out.print(Bytes.toString(CellUtil.cloneQualifier(cell))+"="+Bytes.toString(CellUtil.cloneValue(cell))+", ");
 		}
 		System.out.println();
 	}
 
-	public static void close() throws IOException {
+	private static void close() throws IOException {
 		if (table != null) {
 			table.close();
 		}
@@ -172,5 +202,4 @@ public class PrepareData {
 		}
 		System.out.println("关闭连接!");
 	}
-
 }
