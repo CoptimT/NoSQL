@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
@@ -40,12 +41,11 @@ public class PrepareData {
 			deleteTable(admin, TABLE_NAME);
 			createTable(admin, TABLE_NAME, CF_DEFAULT);
 			Map<String,String> values=new HashMap<String, String>();
-			for(int i=0;i<10;i++) {
+			for(int i=1;i<=10;i++) {
 				values.put("key"+i, "value"+i);
 				writeRow(table, "row"+i, CF_DEFAULT, values);
 			}
 			scan(table, CF_DEFAULT);
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally {
@@ -98,7 +98,6 @@ public class PrepareData {
 		try {
 			for (Result r = rs.next(); r != null; r = rs.next()) {
 				printResult(r);
-				System.out.println("----------");
 			}
 		} finally {
 			rs.close();//always close the ResultScanner!
@@ -108,6 +107,7 @@ public class PrepareData {
 	public static void scan(Table table, String family) throws IOException {
 		Scan scan = new Scan();
 		scan.addFamily(Bytes.toBytes(family));
+		//scan.setBatch(5);//查询结果每个Result最多包含列数，如果实际列数多于该值，则返回多个Result
 		ResultScanner rs = table.getScanner(scan);
 		try {
 			for (Result r = rs.next(); r != null; r = rs.next()) {
@@ -151,6 +151,13 @@ public class PrepareData {
 				System.out.println(print);
 			}
 		}
+	}
+	
+	public static void printResult2(Result r) {
+		for (Cell cell : r.rawCells()) {
+			System.out.print(new String(cell.getRowArray())+":"+new String(cell.getQualifierArray())+"="+new String(cell.getValueArray())+",");
+		}
+		System.out.println();
 	}
 
 	public static void close() throws IOException {

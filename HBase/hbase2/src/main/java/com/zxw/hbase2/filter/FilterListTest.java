@@ -11,7 +11,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import com.zxw.hbase2.PrepareData;
 
 public class FilterListTest {
-
+	//FilterList
 	public static void main(String[] args) throws IOException {
 		PrepareData.init();
 		
@@ -21,16 +21,16 @@ public class FilterListTest {
 		FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);//FilterList.Operator.MUST_PASS_ALL
 		SingleColumnValueFilter filter1 = new SingleColumnValueFilter(
 				cf, column, CompareOperator.EQUAL,Bytes.toBytes("value8"));
-		list.addFilter(filter1);
 		SingleColumnValueFilter filter2 = new SingleColumnValueFilter(
 				cf,column,CompareOperator.EQUAL,Bytes.toBytes("value9"));
+		list.addFilter(filter1);
 		list.addFilter(filter2);
+		
 		Scan scan = new Scan();
 		scan.setFilter(list);
 		
 		PrepareData.scan(scan);
 		PrepareData.close();
-
 	}
 
 }

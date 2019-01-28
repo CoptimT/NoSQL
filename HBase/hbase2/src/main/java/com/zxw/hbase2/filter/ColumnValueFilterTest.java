@@ -14,12 +14,11 @@ public class ColumnValueFilterTest {
 	
 	public static void main(String[] args) throws IOException {
 		testSingleColumnValueFilter();
-		//testColumnValueFilter();
+		testColumnValueFilter();
 	}
 	
 	/**
-	 * SingleColumnValueFilter
-	 * @throws IOException
+	 * SingleColumnValueFilter 返回全部列
 	 */
 	public static void testSingleColumnValueFilter() throws IOException {
 		PrepareData.init();
@@ -27,10 +26,10 @@ public class ColumnValueFilterTest {
 		byte[] cf = Bytes.toBytes(PrepareData.CF_DEFAULT);
 		byte[] column = Bytes.toBytes("key2");
 		//不包含该字段按满足条件处理
-		SingleColumnValueFilter filter1 = new SingleColumnValueFilter(
+		SingleColumnValueFilter filter = new SingleColumnValueFilter(
 				cf, column, CompareOperator.EQUAL,Bytes.toBytes("value1"));
 		Scan scan = new Scan();
-		scan.setFilter(filter1);
+		scan.setFilter(filter);
 		
 		PrepareData.scan(scan);
 		PrepareData.close();
@@ -46,8 +45,7 @@ public class ColumnValueFilterTest {
 	}
 	
 	/**
-	 * ColumnValueFilter
-	 * @throws IOException
+	 * ColumnValueFilter 只返回查询列
 	 */
 	public static void testColumnValueFilter() throws IOException {
 		PrepareData.init();
@@ -55,10 +53,10 @@ public class ColumnValueFilterTest {
 		byte[] cf = Bytes.toBytes(PrepareData.CF_DEFAULT);
 		byte[] column = Bytes.toBytes("key8");
 		//不包含该字段按满足条件处理
-		ColumnValueFilter filter1 = new ColumnValueFilter(
+		ColumnValueFilter filter = new ColumnValueFilter(
 				cf, column, CompareOperator.EQUAL,Bytes.toBytes("value8"));
 		Scan scan = new Scan();
-		scan.setFilter(filter1);
+		scan.setFilter(filter);
 		
 		PrepareData.scan(scan);
 		PrepareData.close();

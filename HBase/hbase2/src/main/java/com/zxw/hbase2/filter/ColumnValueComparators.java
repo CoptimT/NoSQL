@@ -18,30 +18,29 @@ public class ColumnValueComparators {
 
 	public static void main(String[] args) {
 		try {
-//			RegexStringComparator regexStringComparator = new RegexStringComparator("value0.");// any value that starts with 'my'
-//			testColumnValueComparators("key2",regexStringComparator);
+			RegexStringComparator regexStringComparator = new RegexStringComparator("value0.");// any value that starts with 'my'
+			testColumnValueComparators("key2",regexStringComparator);
 			
-//			SubstringComparator substringComparator = new SubstringComparator("value3");// looking for 'my value'
-//			testColumnValueComparators("key2",substringComparator);
+			SubstringComparator substringComparator = new SubstringComparator("value3");// looking for 'my value'
+			testColumnValueComparators("key2",substringComparator);
 			
 			BinaryPrefixComparator binaryPrefixComparator = new BinaryPrefixComparator(Bytes.toBytes("value3"));
 			testColumnValueComparators("key2",binaryPrefixComparator);
 			
-//			BinaryComparator binaryComparator=new BinaryComparator(Bytes.toBytes("value3"));
-//			testColumnValueComparators("key2",binaryComparator);
+			BinaryComparator binaryComparator=new BinaryComparator(Bytes.toBytes("value3"));
+			testColumnValueComparators("key2",binaryComparator);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public static void testColumnValueComparators(String columnValue,ByteArrayComparable comp) throws IOException {
+	public static void testColumnValueComparators(String columnQualifier,ByteArrayComparable comp) throws IOException {
 		PrepareData.init();
 		
 		byte[] cf = Bytes.toBytes(PrepareData.CF_DEFAULT);
-		byte[] column = Bytes.toBytes(columnValue);
+		byte[] column = Bytes.toBytes(columnQualifier);
 		
-		SingleColumnValueFilter filter = new SingleColumnValueFilter(
-		  cf,column,CompareOperator.EQUAL,comp);
+		SingleColumnValueFilter filter = new SingleColumnValueFilter(cf,column,CompareOperator.EQUAL,comp);
 		Scan scan = new Scan();
 		scan.setFilter(filter);
 		
